@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Float Picture</string>
+    <string name="hello_user">Hello User!</string>
+    
+    <color name="color_alpha">#00000000</color>
+    <color name="color_btn_down">#FFE1E1E1</color>
+</resources>
