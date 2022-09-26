@@ -4,7 +4,8 @@
     <item type="id" name="btn_close"/>
     <item type="id" name="btn_save"/>
     <item type="id" name="btn_sel_pic"/>
-    <item type="id" name="spin_mode"/>
+    <item type="id" name="btn_mode"/>
+    <item type="id" name="cb_window"/>
     <item type="id" name="txt_value"/>
     <item type="id" name="btn_minus_1"/>
     <item type="id" name="btn_minus_10"/>
@@ -12,4 +13,5 @@
     <item type="id" name="btn_plus_1"/>
     <item type="id" name="btn_plus_10"/>
     <item type="id" name="btn_plus_100"/>
+    <item type="id" name="list_mode"/>
 </resources>

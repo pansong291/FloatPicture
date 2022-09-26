@@ -12,12 +12,15 @@ import android.view.WindowManager;
 import android.view.WindowManager.LayoutParams;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.Spinner;
 import android.widget.TextView;
 import pansong291.floatpic.R;
 import pansong291.floatpic.notification.MainNotification;
 import pansong291.floatpic.view.ResizableImageView;
 import pansong291.floatpic.view.ResizableImageView.ResizeType;
+import android.widget.CheckBox;
+import android.widget.ListView;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 
 public class MainService extends ZService {
   public static final String START_FROM_NOTIFICATION = "START_FROM_NOTIFICATION";
@@ -30,7 +33,8 @@ public class MainService extends ZService {
   private ViewGroup editViewContainer;
   private Button btn_save;
   private Button btn_close;
-  private Spinner spin_mode;
+  private Button btn_mode;
+  private CheckBox cb_window;
   private TextView txt_value;
   private Button btn_minus_1;
   private Button btn_plus_1;
@@ -38,23 +42,27 @@ public class MainService extends ZService {
   private Button btn_plus_10;
   private Button btn_minus_100;
   private Button btn_plus_100;
-
+  private ListView list_mode;
+  
+  private Animation anim_list_in, anim_list_out;
   private LayoutParams containerLayoutParams;
   private MainServiceListener listener;
 
   private ResizeType resizeType;
 
   private void initView(View view) {
-    this.btn_save = view.findViewById(R.id.btn_save);
-    this.btn_close = view.findViewById(R.id.btn_close);
-    this.spin_mode = view.findViewById(R.id.spin_mode);
-    this.txt_value = view.findViewById(R.id.txt_value);
-    this.btn_minus_1 = view.findViewById(R.id.btn_minus_1);
-    this.btn_plus_1 = view.findViewById(R.id.btn_plus_1);
-    this.btn_minus_10 = view.findViewById(R.id.btn_minus_10);
-    this.btn_plus_10 = view.findViewById(R.id.btn_plus_10);
-    this.btn_minus_100 = view.findViewById(R.id.btn_minus_100);
-    this.btn_plus_100 = view.findViewById(R.id.btn_plus_100);
+    btn_save = view.findViewById(R.id.btn_save);
+    btn_close = view.findViewById(R.id.btn_close);
+    btn_mode = view.findViewById(R.id.btn_mode);
+    cb_window = view.findViewById(R.id.cb_window);
+    txt_value = view.findViewById(R.id.txt_value);
+    btn_minus_1 = view.findViewById(R.id.btn_minus_1);
+    btn_plus_1 = view.findViewById(R.id.btn_plus_1);
+    btn_minus_10 = view.findViewById(R.id.btn_minus_10);
+    btn_plus_10 = view.findViewById(R.id.btn_plus_10);
+    btn_minus_100 = view.findViewById(R.id.btn_minus_100);
+    btn_plus_100 = view.findViewById(R.id.btn_plus_100);
+    list_mode = view.findViewById(R.id.list_mode);
   }
 
   @Override
@@ -94,14 +102,18 @@ public class MainService extends ZService {
 
   private void initEditView() {
     if (editViewContainer == null) {
+      anim_list_in = AnimationUtils.loadAnimation(this, R.anim.list_in);
+      anim_list_out = AnimationUtils.loadAnimation(this, R.anim.list_out);
       LayoutInflater inflater = LayoutInflater.from(getApplication());
       editViewContainer = (ViewGroup) inflater.inflate(R.layout.float_control, null);
       initView(editViewContainer);
       listener = new MainServiceListener(this);
-      spin_mode.setAdapter(new ArrayAdapter(this, R.layout.simple_spinner_item, ResizableImageView.ResizeType.names()));
-      spin_mode.setOnItemSelectedListener(listener);
+      list_mode.setAdapter(new ArrayAdapter(this, R.layout.simple_spinner_item, ResizableImageView.ResizeType.names()));
+      list_mode.setOnItemClickListener(listener);
+      btn_mode.setOnClickListener(listener);
       btn_save.setOnClickListener(listener);
       btn_close.setOnClickListener(listener);
+      cb_window.setOnCheckedChangeListener(listener);
       txt_value.setOnTouchListener(listener);
       btn_minus_1.setOnClickListener(listener);
       btn_minus_10.setOnClickListener(listener);
@@ -109,6 +121,9 @@ public class MainService extends ZService {
       btn_plus_1.setOnClickListener(listener);
       btn_plus_10.setOnClickListener(listener);
       btn_plus_100.setOnClickListener(listener);
+
+      setResizeType(ResizableImageView.ResizeType.values()[0]);
+      setShowModeList(false);
     }
   }
 
@@ -144,15 +159,27 @@ public class MainService extends ZService {
     return super.onStartCommand(intent, flags, startId);
   }
 
+  public void setShowModeList(boolean show) {
+    list_mode.setVisibility(show ? View.VISIBLE : View.GONE);
+    list_mode.startAnimation(show ? anim_list_in : anim_list_out);
+  }
+
   public void setResizeType(ResizeType type) {
     resizeType = type;
+    btn_mode.setText(type.name());
+    updateTextViewValue();
+  }
+
+  public void setShowWindow(boolean show) {
+    resizableImageView.setShowWindow(show);
   }
 
   public void offsetResizableImageView(int offset) {
     resizableImageView.offset(resizeType, offset);
+    updateTextViewValue();
   }
 
-  public void updateTextViewValue() {
+  private void updateTextViewValue() {
     txt_value.setText(String.valueOf(resizableImageView.getCurrentValue(resizeType)));
   }
 
@@ -180,6 +207,7 @@ public class MainService extends ZService {
   public void removeEditViewContainer() {
     if (editViewContainer != null) {
       try {
+        cb_window.setChecked(false);
         windowManager.removeView(editViewContainer);
       } catch (Exception e) {
         e.printStackTrace();

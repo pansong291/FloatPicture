@@ -9,6 +9,9 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import org.json.JSONObject;
 import org.json.JSONException;
+import android.graphics.LinearGradient;
+import android.graphics.Shader;
+import android.graphics.Color;
 
 public class ResizableImageView extends View {
   private String imgPath;
@@ -16,6 +19,7 @@ public class ResizableImageView extends View {
   private Paint paint;
   private Rect srcRect;
   private Rect dstRect;
+  private boolean showWindow;
 
   public ResizableImageView(Context context) {
     super(context);
@@ -34,6 +38,11 @@ public class ResizableImageView extends View {
 
   private void init() {
     paint = new Paint();
+    int[] colors = {Color.RED, Color.rgb(255, 128, 0), Color.YELLOW, Color.GREEN, Color.CYAN, Color.BLUE, Color.rgb(128, 0, 255)};
+    LinearGradient linearGradient = new LinearGradient(0, 0, 100, 100, colors, null, Shader.TileMode.MIRROR);
+    paint.setShader(linearGradient);
+    paint.setStyle(Paint.Style.STROKE);
+    paint.setStrokeWidth(8);
     srcRect = new Rect(0, 0, 200, 200);
     dstRect = new Rect(0, 0, 200, 200);
   }
@@ -77,6 +86,11 @@ public class ResizableImageView extends View {
     Bitmap bm = BitmapFactory.decodeFile(filepath);
     destroy();
     bitMap = bm;
+    postInvalidate();
+  }
+
+  public void setShowWindow(boolean show) {
+    showWindow = show;
     postInvalidate();
   }
 
@@ -177,6 +191,7 @@ public class ResizableImageView extends View {
     super.onDraw(canvas);
     if (bitMap == null) return;
     canvas.drawBitmap(bitMap, srcRect, dstRect, paint);
+    if (showWindow) canvas.drawRect(dstRect, paint);
   }
 
   public void destroy() {

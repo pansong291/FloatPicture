@@ -6,13 +6,16 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
 import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemSelectedListener;
+import android.widget.AdapterView.OnItemClickListener;
 import pansong291.floatpic.R;
 import pansong291.floatpic.activity.MainActivity;
 import pansong291.floatpic.activity.Zactivity;
 import pansong291.floatpic.view.ResizableImageView;
+import android.widget.CompoundButton.OnCheckedChangeListener;
+import android.widget.CompoundButton;
+import android.widget.Adapter;
 
-public class MainServiceListener implements OnClickListener, OnItemSelectedListener, OnTouchListener {
+public class MainServiceListener implements OnClickListener, OnCheckedChangeListener, OnItemClickListener, OnTouchListener {
   private MainService mainService;
   private Point pBefore = new Point(), pNow = new Point();
 
@@ -34,10 +37,12 @@ public class MainServiceListener implements OnClickListener, OnItemSelectedListe
     }
     if (offset != 0) {
       mainService.offsetResizableImageView(offset);
-      mainService.updateTextViewValue();
       return;
     }
     switch (v.getId()) {
+      case R.id.btn_mode:
+        mainService.setShowModeList(true);
+        break;
       case R.id.btn_save:
         mainService.saveData();
         mainService.toast("Saved");
@@ -49,13 +54,14 @@ public class MainServiceListener implements OnClickListener, OnItemSelectedListe
   }
 
   @Override
-  public void onItemSelected(AdapterView<?> p1, View p2, int p3, long p4) {
-    mainService.setResizeType(ResizableImageView.ResizeType.values()[p3]);
-    mainService.updateTextViewValue();
+  public void onCheckedChanged(CompoundButton p1, boolean p2) {
+    mainService.setShowWindow(p2);
   }
 
   @Override
-  public void onNothingSelected(AdapterView<?> p1) {
+  public void onItemClick(AdapterView<?> p1, View p2, int p3, long p4) {
+    mainService.setResizeType(ResizableImageView.ResizeType.values()[p3]);
+    mainService.setShowModeList(false);
   }
 
   @Override
